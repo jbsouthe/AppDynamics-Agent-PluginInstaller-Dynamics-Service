@@ -7,8 +7,11 @@ import com.singularity.ee.agent.appagent.services.bciengine.JavaAgentManifest;
 import com.singularity.ee.agent.util.log4j.ADLoggerFactory;
 import com.singularity.ee.agent.util.log4j.IADLogger;
 import com.singularity.ee.util.javaspecific.threads.IAgentRunnable;
+import main.java.com.singularity.ee.service.pluginInstaller.json.PluginDetails;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
@@ -18,12 +21,14 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
     private AgentNodeProperties agentNodeProperties;
     private ServiceComponent serviceComponent;
     private IServiceContext serviceContext;
+    private List<PluginDetails> installedPlugins;
 
     public CheckForAgentInstallPluginsTask(IDynamicService agentService, AgentNodeProperties agentNodeProperties, ServiceComponent serviceComponent, IServiceContext iServiceContext) {
         this.agentNodeProperties=agentNodeProperties;
         this.agentService=agentService;
         this.serviceComponent=serviceComponent;
         this.serviceContext=iServiceContext;
+        this.installedPlugins = new ArrayList<>();
     }
 
     /**
@@ -59,10 +64,36 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
         serviceComponent.getEventHandler().publishInfoEvent(message, map);
     }
 
+private Double _javaAgentVersion = null;
+    private double getCurrentAgentVersionFromFile() {
+        if( _javaAgentVersion == null ) {
+            JavaAgentManifest javaAgentManifest = JavaAgentManifest.parseManifest(serviceContext.getInstallDir());
+            String version = javaAgentManifest.getJavaAgentVersion(); //Javaagent-Version: 22.12.0.34603
+            int firstDot = version.indexOf(".");
+            int secondDot = version.indexOf(".", firstDot);
+            if (secondDot != -1) {
+                version = version.substring(0, secondDot);
+            }
+            _javaAgentVersion = Double.parseDouble(version);
+        }
+        return _javaAgentVersion;
+    }
 
-    private String getCurrentAgentVersionFromFile() {
-        JavaAgentManifest javaAgentManifest = JavaAgentManifest.parseManifest(serviceContext.getInstallDir());
-        return javaAgentManifest.getJavaAgentVersion();
+    private Integer _javaVMVersion = null;
+    private int getJavaVersion() {
+        if( _javaVMVersion == null ) {
+            String version = System.getProperty("java.version");
+            if (version.startsWith("1.")) {
+                version = version.substring(2, 3);
+            } else {
+                int dot = version.indexOf(".");
+                if (dot != -1) {
+                    version = version.substring(0, dot);
+                }
+            }
+            _javaVMVersion = Integer.parseInt(version);
+        }
+        return _javaVMVersion;
     }
     
 }
