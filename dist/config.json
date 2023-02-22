@@ -7,10 +7,10 @@
       "release_notes_url": "https://github.com/jbsouthe/AppDynamics-SSL-Certificate-Agent_Plugin/blob/main/README.md",
       "download_url": "dist/SSLCertAgentPlugin-1.0.jar",
       "md5_checksum": "210d4f0212716e3cec527b1317fd07a9",
-      "version": "1.0",
+      "version": 1.0,
       "class_supports": ["java.security.cert.X509Certificate"],
-      "agent_min_version": "22.1",
-      "java_min_version": "8"
+      "agent_min_version": 22.1,
+      "java_min_version": 8
     }
   ]
 }
