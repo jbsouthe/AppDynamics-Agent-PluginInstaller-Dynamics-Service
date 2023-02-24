@@ -12,6 +12,58 @@
       "class_supports": ["java.security.cert.X509Certificate"],
       "agent_min_version": 22.1,
       "java_min_version": 8
+    },
+    {
+      "id": 2,
+      "name": "Mulesoft 4.3+ Plugin",
+      "description": "Decorate Mulesoft Transactions and ensure correlation with snapshot and analytics data about flows and much more.",
+      "release_notes_url": "https://github.com/jbsouthe/MulesoftAppDynamicsAgentPlugin/blob/master/README.md",
+      "download_url": "AppD-MuleAgentTracer-2.2.jar",
+      "filename": "AppD-MuleAgentTracer-2.2.jar",
+      "md5_checksum": "b30712ff1a40a5bfb65cfc57395ac554",
+      "version": 2.2,
+      "class_supports": ["org.mule.runtime.module.reboot.internal.MuleContainerSystemClassLoader"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 3,
+      "name": "Azure Java Functions Plugin",
+      "description": "BTs for Azure Java functions with correlation if we are lucky",
+      "release_notes_url": "https://github.com/jbsouthe/AppDynamics-Azure-JavaFunctions-Plugin/blob/main/README.md",
+      "download_url": "AzureJavaFunctionAgentPlugin-1.0.jar",
+      "filename": "AzureJavaFunctionAgentPlugin-1.0.jar",
+      "md5_checksum": "e57ab1ac933284a311adc85dcc99c681",
+      "version": 1.0,
+      "class_supports": ["com.microsoft.azure.functions.worker.handler.InvocationRequestHandler"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 4,
+      "name": "Cisco UCCE Plugin",
+      "description": "Cisco Call Center Software monitoring plugin",
+      "release_notes_url": "https://github.com/jbsouthe/CiscoUCCE-AppDynamics-Plugin/blob/main/README.md",
+      "download_url": "CiscoUCCEAgentPlugin-1.0.jar",
+      "filename": "CiscoUCCEAgentPlugin-1.0.jar",
+      "md5_checksum": "61d0e745bf98443ec365e757f58c6234",
+      "version": 1.0,
+      "class_supports": ["com.cisco.jasmin.impl.ds.NewInvitationCallback", "com.cisco.jasmin.impl.ds.ConnectionImpl"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 5,
+      "name": "IBM MQ Plugin",
+      "description": "IBM MQ plugin to automatically monitor MQ Queue managers",
+      "release_notes_url": "https://github.com/jbsouthe/AppDynamics-MQ-AgentPlugin/blob/main/README.md",
+      "download_url": "IBMMQAgentPlugin-1.0.jar",
+      "filename": "IBMMQAgentPlugin-1.0.jar",
+      "md5_checksum": "1bfed962f0aea44f1bf15179db13f5a2",
+      "version": 1.0,
+      "class_supports": ["com.ibm.msg.client.jms.JmsFactoryFactory"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
     }
   ]
 }
