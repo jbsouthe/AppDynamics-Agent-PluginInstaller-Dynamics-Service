@@ -21,7 +21,9 @@ public class AgentNodeProperties extends Observable {
         if( configProperties != null ) {
             boolean enabled = StringOperations.safeParseBoolean((String)((String)configProperties.get("agent.isdk.installer.enabled")), (boolean)true);
             this.properties.put("agent.isdk.installer.enabled", Boolean.toString(enabled));
-            this.properties.put("agent.isdk.installer.url", (String)configProperties.get("agent.isdk.installer.url"));
+            String defaultURLString = (String)configProperties.get("agent.isdk.installer.url");
+            if (defaultURLString == null ) defaultURLString = "https://github.com/jbsouthe/AppDynamics-Agent-PluginInstaller-Dynamics-Service/tree/main/dist";
+            this.properties.put("agent.isdk.installer.url", defaultURLString);
             logger.info("Initializing the properties " + this);
         } else {
             logger.error("Config properties map is null?!?!");
