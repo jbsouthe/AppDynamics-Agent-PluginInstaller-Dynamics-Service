@@ -64,6 +64,58 @@
       "class_supports": ["com.ibm.msg.client.jms.JmsFactoryFactory"],
       "agent_min_version": 22.1,
       "java_min_version": 8
+    },
+    {
+      "id": 6,
+      "name": "JSCH Exit Call Support",
+      "description": "JSCH library exit call support for ssh, scp, sftp backend support",
+      "release_notes_url": "https://github.com/jbsouthe/JSCHAppDynamicsAgentPlugin/blob/master/README.md",
+      "download_url": "JSCHAgentPlugin-1.0.jar",
+      "filename": "JSCHAgentPlugin-1.0.jar",
+      "md5_checksum": "9afe2b0540320f7b2e451014c68bad6a",
+      "version": 1.0,
+      "class_supports": ["com.jcraft.jsch.ChannelSftp"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 7,
+      "name": "Kotlin Language Support",
+      "description": "Kotlin Coroutine Support and HTTP Client support",
+      "release_notes_url": "https://github.com/jbsouthe/KotlinCoroutineAppDPlugin/blob/main/README.md",
+      "download_url": "KotlinAgentPlugin-1.0.jar",
+      "filename": "KotlinAgentPlugin-1.0.jar",
+      "md5_checksum": "449365dcea0f37e4e4890e37ecd855da",
+      "version": 1.0,
+      "class_supports": ["kotlinx.coroutines.AbstractCoroutine"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 8,
+      "name": "Ping Federated Support",
+      "description": "Ping Federated support for BTs and correlation, as well as custom data",
+      "release_notes_url": "https://github.com/jbsouthe/pingAccessAppDynamicsPlugin/blob/main/README.md",
+      "download_url": "PingAccessAgentPlugin-2.3.jar",
+      "filename": "PingAccessAgentPlugin-2.3.jar",
+      "md5_checksum": "78d67f60097b80dc52a18105f40e7e3f",
+      "version": 2.3,
+      "class_supports": ["com.pingidentity.pa.core.interceptor.HTTPClientInterceptor"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
+    },
+    {
+      "id": 9,
+      "name": "AxWay Gateway support",
+      "description": "AxWay Vordel Gateway Support for correlation and BTs",
+      "release_notes_url": "https://github.com/jbsouthe/AppDynamics-Axway-Vordel-AgentPlugin/blob/main/README.md",
+      "download_url": "VordelAgentPlugin-1.2.jar",
+      "filename": "VordelAgentPlugin-1.2.jar",
+      "md5_checksum": "70e0d8709b5d3530090200977052ed97",
+      "version": 1.2,
+      "class_supports": ["com.vordel.dwe.http.HTTPPlugin"],
+      "agent_min_version": 22.1,
+      "java_min_version": 8
     }
   ]
 }
