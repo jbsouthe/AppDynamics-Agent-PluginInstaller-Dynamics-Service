@@ -1,6 +1,6 @@
-package main.java.com.singularity.ee.service.pluginInstaller.exception;
+package com.singularity.ee.service.pluginInstaller.exception;
 
-import main.java.com.singularity.ee.service.pluginInstaller.json.PluginDetails;
+import com.singularity.ee.service.pluginInstaller.json.PluginDetails;
 
 public class MD5ChecksumException extends Exception {
     private final PluginDetails plugin;

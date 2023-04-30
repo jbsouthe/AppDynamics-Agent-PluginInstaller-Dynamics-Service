@@ -1,4 +1,4 @@
-package main.java.com.singularity.ee.service.pluginInstaller;
+package com.singularity.ee.service.pluginInstaller;
 
 import com.singularity.ee.agent.appagent.kernel.spi.data.IServiceConfig;
 import com.singularity.ee.agent.util.log4j.ADLoggerFactory;

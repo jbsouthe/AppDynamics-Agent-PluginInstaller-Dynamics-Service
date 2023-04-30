@@ -1,4 +1,4 @@
-package main.java.com.singularity.ee.service.pluginInstaller.json;
+package com.singularity.ee.service.pluginInstaller.json;
 
 import java.io.File;
 import java.io.IOException;

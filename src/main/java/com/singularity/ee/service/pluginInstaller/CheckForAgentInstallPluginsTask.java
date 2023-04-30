@@ -1,4 +1,4 @@
-package main.java.com.singularity.ee.service.pluginInstaller;
+package com.singularity.ee.service.pluginInstaller;
 
 import com.singularity.ee.agent.appagent.kernel.ServiceComponent;
 import com.singularity.ee.agent.appagent.kernel.spi.IDynamicService;
@@ -8,9 +8,9 @@ import com.singularity.ee.agent.util.log4j.ADLoggerFactory;
 import com.singularity.ee.agent.util.log4j.IADLogger;
 import com.singularity.ee.util.io.FileUtil;
 import com.singularity.ee.util.javaspecific.threads.IAgentRunnable;
-import main.java.com.singularity.ee.service.pluginInstaller.exception.MD5ChecksumException;
-import main.java.com.singularity.ee.service.pluginInstaller.json.PluginDetails;
-import main.java.com.singularity.ee.service.pluginInstaller.web.Downloader;
+import com.singularity.ee.service.pluginInstaller.exception.MD5ChecksumException;
+import com.singularity.ee.service.pluginInstaller.json.PluginDetails;
+import com.singularity.ee.service.pluginInstaller.web.Downloader;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,12 +1,12 @@
-package main.java.com.singularity.ee.service.pluginInstaller.web;
+package com.singularity.ee.service.pluginInstaller.web;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.singularity.ee.agent.util.log4j.ADLoggerFactory;
 import com.singularity.ee.agent.util.log4j.IADLogger;
-import main.java.com.singularity.ee.service.pluginInstaller.exception.MD5ChecksumException;
-import main.java.com.singularity.ee.service.pluginInstaller.json.ConfigJSON;
-import main.java.com.singularity.ee.service.pluginInstaller.json.PluginDetails;
+import com.singularity.ee.service.pluginInstaller.exception.MD5ChecksumException;
+import com.singularity.ee.service.pluginInstaller.json.ConfigJSON;
+import com.singularity.ee.service.pluginInstaller.json.PluginDetails;
 
 import java.io.*;
 import java.net.HttpURLConnection;
