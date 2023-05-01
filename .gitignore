@@ -1,0 +1,6 @@
+/src/main/java/com/singularity/ee/service/pluginInstaller/MetaData.java
+/target/
+**/.DS_Store
+.idea
+*.jar
+dependency-reduced-pom.xml

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.singularity.ee.agent.util.log4j.ADLoggerFactory;
 import com.singularity.ee.agent.util.log4j.IADLogger;
+import com.singularity.ee.service.pluginInstaller.MD5Checksum;
 import com.singularity.ee.service.pluginInstaller.exception.MD5ChecksumException;
 import com.singularity.ee.service.pluginInstaller.json.ConfigJSON;
 import com.singularity.ee.service.pluginInstaller.json.PluginDetails;
@@ -32,6 +33,7 @@ public class Downloader {
     public List<PluginDetails> getPluginListing() {
         logger.info(String.format("Fetching list of plugins available for download"));
         try {
+            //https://github.com/jbsouthe/AppDynamics-Agent-PluginInstaller-Dynamics-Service/raw/main/dist/config.json
             URL url = new URL(this.baseURL, "config.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Content-Type", "application/json");
@@ -81,8 +83,9 @@ public class Downloader {
             } catch (IOException ignored) {}
         }
 
-        if( !pluginDetails.isChecksumMatching(tempFile) )
-            throw new MD5ChecksumException("MD5 Checksum does not match expected, we can not install", pluginDetails);
+        if( !MD5Checksum.equals(tempFile, pluginDetails.md5_checksum) ) {
+            throw new MD5ChecksumException(String.format("MD5 Checksum does not match expected for file %s", tempFile.getAbsolutePath()), pluginDetails);
+        }
 
         return tempFile;
     }

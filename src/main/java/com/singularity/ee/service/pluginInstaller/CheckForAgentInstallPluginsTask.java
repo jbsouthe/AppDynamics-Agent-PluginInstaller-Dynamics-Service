@@ -109,11 +109,12 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
 
 
     private void sendInfoEvent(String message) {
-        sendInfoEvent(message, new HashMap());
+        sendInfoEvent(message, MetaData.getAsMap());
     }
 
     private void sendInfoEvent(String message, Map map) {
         logger.info("Sending Custom INFO Event with message: "+ message);
+        if( !map.containsKey("agent-isdk-installer-version")) map.putAll(MetaData.getAsMap());
         serviceComponent.getEventHandler().publishInfoEvent(message, map);
     }
 
