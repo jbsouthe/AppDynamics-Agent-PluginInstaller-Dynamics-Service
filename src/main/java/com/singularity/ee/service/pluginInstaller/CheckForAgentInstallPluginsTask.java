@@ -13,13 +13,11 @@ import com.singularity.ee.service.pluginInstaller.json.PluginDetails;
 import com.singularity.ee.service.pluginInstaller.web.Downloader;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
     private static final IADLogger logger = ADLoggerFactory.getLogger((String)"com.singularity.ee.service.pluginInstaller.CheckForAgentInstallPluginsTask");
@@ -28,7 +26,6 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
     private AgentNodeProperties agentNodeProperties;
     private ServiceComponent serviceComponent;
     private IServiceContext serviceContext;
-    private Map<Long,PluginDetails> installedPlugins;
     private Downloader downloader;
 
     public CheckForAgentInstallPluginsTask(IDynamicService agentService, AgentNodeProperties agentNodeProperties, ServiceComponent serviceComponent, IServiceContext iServiceContext) {
@@ -36,7 +33,6 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
         this.agentService=agentService;
         this.serviceComponent=serviceComponent;
         this.serviceContext=iServiceContext;
-        this.installedPlugins = new HashMap<>();
         this.downloader = new Downloader();
     }
 
@@ -77,26 +73,53 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
             return;
         }
 
-        for( PluginDetails pluginDetails : this.downloader.getPluginListing() ) {
+        Map<String,PluginDetails> serverPluginMap = this.downloader.getPluginListing();
+        int count = serverPluginMap.size();
+        //1. update list of installed plugins from the jar files in the isdk plugins directory of the agent
+        Map<String,PluginDetails> installedPlugins = null;
+        try {
+            installedPlugins = inventoryPlugins( new File(serviceContext.getInstallDir()  + "/sdk-plugins/"), serverPluginMap);
+        } catch (Exception e) {
+            logger.error("Exception thrown while attempting to process installed plugins, can not continue! Exception: "+ e.getMessage(),e);
+            return;
+        }
+
+        //2. check to see if the plugins of that version are already installed or not, skip the ones already installed, unless newer -- did this in the last method
+        logger.debug(String.format("Pruned %d plugins already installed from the server list, now examining %d for fitness", count-serverPluginMap.size(), serverPluginMap.size()));
+        for( PluginDetails pluginDetails : serverPluginMap.values() ) {
             try {
-                //2. check to see if the plugins of that version are already installed or not, skip the ones already installed, unless newer
-                if (installedPlugins.containsKey(pluginDetails.id)
-                        && installedPlugins.get(pluginDetails.id).version == pluginDetails.version) {
+                //3. for each that isn't installed check to see if the classes it triggers on are found on the app classloader
+                if (!isClassLoaded(pluginDetails.class_supports)) {
+                    logger.debug(String.format("Skipping %s because classes it supports are not found in the application: %s", pluginDetails, pluginDetails.class_supports));
                     continue;
                 }
-                //3. for each that isn't installed check to see if the classes it triggers on are found on the app classloader
-                if (!isClassLoaded(pluginDetails.class_supports)) continue;
                 //4. confirm prereqs: jvm version, agent version,
-                if (!isCompatible(pluginDetails)) continue;
+                if (!isCompatible(pluginDetails)) {
+                    logger.debug(String.format("Skipping %s because it is not listed as compatible with the jvm (%f) or the agent(%f)", pluginDetails, pluginDetails.java_min_version, pluginDetails.agent_min_version));
+                    continue;
+                }
+                // check to see if the plugin we want to install already has an older version installed, or a filename that matches another plugin
+                if (!isBestVersion(pluginDetails, serverPluginMap)) {
+                    logger.debug(String.format("Skipping %s because it is old and a newer version exists in the list from the server", pluginDetails));
+                    //so tempted to remove this, but i'm in the middle of iterating the list
+                    continue;
+                }
                 //5. if matching, download agent plugin jar, confirm md5 checksum
-                pluginDetails.file = this.downloader.getPluginFile(pluginDetails);
+                File downloadedPluginFile = this.downloader.getPluginFile(pluginDetails);
                 //6. if file exists, delete it either the version is different or we aren't sure so replace it
                 File targetFile = new File(serviceContext.getInstallDir()  + "/sdk-plugins/" + pluginDetails.filename);
+
+                // check to see if this is an upgrade to an already installed plugin, and remove that version before continuing
+                List<PluginDetails> oldPlugins = findOldVersionAlreadyInstalled(pluginDetails, installedPlugins.values());
+                for( PluginDetails oldVersionOfPlugin : oldPlugins ) {
+                    oldVersionOfPlugin.file.delete();
+                    installedPlugins.remove(oldVersionOfPlugin.md5_checksum);
+                }
                 //7. copy the downloaded file to the sdk-plugins directory
-                copyFile( pluginDetails.file, targetFile );
+                copyFile( downloadedPluginFile, targetFile );
                 pluginDetails.file = targetFile;
                 //8. add the plugin to the list of installed plugins
-                installedPlugins.put(pluginDetails.id, pluginDetails);
+                installedPlugins.put(pluginDetails.md5_checksum, pluginDetails);
             } catch (MD5ChecksumException e) {
                 logger.error(String.format("Error in %s MD5 checksum for new file: %s", e.getPlugin().name,e.toString()));
             } catch (IOException e) {
@@ -106,6 +129,51 @@ public class CheckForAgentInstallPluginsTask implements IAgentRunnable {
             }
         }
     }
+
+    private List<PluginDetails> findOldVersionAlreadyInstalled(PluginDetails pluginDetails, Collection<PluginDetails> installedPlugins) {
+        List<PluginDetails> listOfOldVersionPlugins = new ArrayList<>();
+        for( PluginDetails installedPlugin : installedPlugins )
+            if( installedPlugin.name.equals(pluginDetails.name) && installedPlugin.version < pluginDetails.version )
+                listOfOldVersionPlugins.add(installedPlugin);
+        return listOfOldVersionPlugins;
+    }
+
+    private boolean isBestVersion(PluginDetails pluginDetails, Map<String, PluginDetails> serverPluginMap) {
+        for( PluginDetails otherPlugin : serverPluginMap.values() ) {
+            if( otherPlugin.name.equals( pluginDetails.name ) && otherPlugin.version > pluginDetails.version ) {
+                return false; //tada
+            }
+        }
+        return true; //we made it through the list, and no plugin with the same name had a higher version
+    }
+
+    private Map<String, PluginDetails> inventoryPlugins(File pluginDir, Map<String, PluginDetails> serverPluginMap) throws IOException, NoSuchAlgorithmException {
+        String[] fileNameList = pluginDir.list( //it feels like this should be easier, i bet a stream does this gooder
+                new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.toLowerCase().endsWith(".jar");
+                    }
+                }
+        );
+        Map<String, PluginDetails> installedPluginsList = new HashMap<>();
+        List<PluginDetails> prunePluginList = new ArrayList<>();
+        for( String fileName : fileNameList ) {
+            File existingPluginFile = new File(pluginDir, fileName);
+            String md5_checksum = MD5Checksum.generate(existingPluginFile);
+            //the rest of this is going to look confusing, until you take it all in, trust me this changes O(n^2) to O(n); though you haven't seen the bad version
+            PluginDetails matchingServerPlugin = serverPluginMap.remove(md5_checksum); //i don't want to process server side that is already installed
+            if( matchingServerPlugin != null ) { //if i removed one, then i got a match and i better add it to the installed list
+                matchingServerPlugin.setFile(existingPluginFile); //go ahead and point to the plugin file for later
+                installedPluginsList.put(md5_checksum, matchingServerPlugin); //add this plugin to the list of installed plugins
+            } else { //if the matching plugin is null, it wasn't in the list on the server, so ...
+                installedPluginsList.put(md5_checksum, new PluginDetails(existingPluginFile, md5_checksum) ); //add it to the installed list with not much info yet
+            }
+        }
+        return installedPluginsList;
+    }
+
+
 
 
     private void sendInfoEvent(String message) {

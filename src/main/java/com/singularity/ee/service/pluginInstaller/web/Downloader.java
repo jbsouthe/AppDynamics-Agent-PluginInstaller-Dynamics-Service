@@ -15,7 +15,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Downloader {
     private static final IADLogger logger = ADLoggerFactory.getLogger((String)"com.singularity.ee.service.pluginInstaller.web.Downloader");
@@ -30,7 +32,8 @@ public class Downloader {
         this.baseURL = new URL(urlString);
     }
 
-    public List<PluginDetails> getPluginListing() {
+    public Map<String,PluginDetails> getPluginListing() {
+        Map<String,PluginDetails> pluginDetailsMap = new HashMap<>();
         logger.info(String.format("Fetching list of plugins available for download"));
         try {
             //https://github.com/jbsouthe/AppDynamics-Agent-PluginInstaller-Dynamics-Service/raw/main/dist/config.json
@@ -47,12 +50,13 @@ public class Downloader {
             if( connection.getResponseCode() != 200 )
                 logger.warn("Response: "+ connection.getResponseMessage());
             logger.debug(String.format("Response from download list request: '%s'", response.toString()));
-            return gson.fromJson( response.toString(), ConfigJSON.class ).plugins;
+            for( PluginDetails pluginDetails : gson.fromJson( response.toString(), ConfigJSON.class ).plugins )
+                pluginDetailsMap.put(pluginDetails.md5_checksum, pluginDetails);
         } catch (IOException ioException) {
             logger.error(String.format("IO Exception: %s",ioException),ioException);
         }
 
-        return null;
+        return pluginDetailsMap;
     }
 
     public File getPluginFile(PluginDetails pluginDetails) throws IOException, MD5ChecksumException, NoSuchAlgorithmException {
